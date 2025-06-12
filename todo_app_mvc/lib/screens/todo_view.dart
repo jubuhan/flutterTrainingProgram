@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../controller/todo_controller.dart';
 import '../models/todo_model.dart';
+import 'widgets/add_todo.dart';
+import 'widgets/stats_section.dart';
+import 'widgets/todo_list.dart';
 
 class TodoView extends StatefulWidget {
   @override
@@ -41,43 +44,16 @@ class _TodoViewState extends State<TodoView> {
       ),
       body: Column(
         children: [
-          _buildAddTodoSection(),
-          _buildStatsSection(),
-          Expanded(child: _buildTodoList()),
-        ],
-      ),
-    );
-  }
-
-  // Add todo input section
-  Widget _buildAddTodoSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
-      ),
-      child: Row(
-        children: [
+          AddTodoSection(
+            textController: _textController,
+            onAddTodo: _addTodo,
+          ),
+          StatsSection(controller: _controller),
           Expanded(
-            child: TextField(
-              controller: _textController,
-              decoration: InputDecoration(
-                hintText: 'Enter a new todo...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              onSubmitted: (value) => _addTodo(),
-            ),
-          ),
-          SizedBox(width: 12),
-          ElevatedButton(
-            onPressed: () => _addTodo(),
-            child: Text('Add'),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: TodoListSection(
+              controller: _controller,
+              onToggleTodo: _controller.toggleTodo,
+              onDeleteTodo: _controller.deleteTodo,
             ),
           ),
         ],
@@ -85,111 +61,6 @@ class _TodoViewState extends State<TodoView> {
     );
   }
 
-  // Stats section showing counts
-  Widget _buildStatsSection() {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Container(
-          padding: EdgeInsets.all(16),
-          color: Colors.grey[100],
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem('Total', _controller.totalCount, Colors.blue),
-              _buildStatItem('Pending', _controller.pendingCount, Colors.orange),
-              _buildStatItem('Done', _controller.completedCount, Colors.green),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildStatItem(String label, int count, Color color) {
-    return Column(
-      children: [
-        Text(
-          count.toString(),
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Todo list section
-  Widget _buildTodoList() {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        if (_controller.todos.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.checklist, size: 64, color: Colors.grey[400]),
-                SizedBox(height: 16),
-                Text(
-                  'No todos yet!\nAdd one above to get started.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return ListView.builder(
-          itemCount: _controller.todos.length,
-          itemBuilder: (context, index) {
-            final todo = _controller.todos[index];
-            return _buildTodoItem(todo);
-          },
-        );
-      },
-    );
-  }
-
-  // Individual todo item
-  Widget _buildTodoItem(TodoModel todo) {
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ListTile(
-        leading: Checkbox(
-          value: todo.isCompleted,
-          onChanged: (_) => _controller.toggleTodo(todo.id),
-          activeColor: Colors.green,
-        ),
-        title: Text(
-          todo.title,
-          style: TextStyle(
-            decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
-            color: todo.isCompleted ? Colors.grey[600] : Colors.black,
-          ),
-        ),
-        trailing: IconButton(
-          icon: Icon(Icons.delete, color: Colors.red),
-          onPressed: () => _controller.deleteTodo(todo.id),
-        ),
-      ),
-    );
-  }
-
-  // Helper methods
   void _addTodo() {
     final title = _textController.text;
     if (title.isNotEmpty) {
