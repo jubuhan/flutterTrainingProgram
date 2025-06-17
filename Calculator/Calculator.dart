@@ -37,8 +37,7 @@ void main(){
   String operator=stdin.readLineSync()!;
   if(operator=='exit'){
     
-    break;
-  }
+    break;                     }
   print("enter the next number");
   double num2=double.parse(stdin.readLineSync()!);
   double result=operation(num1, operator, num2);

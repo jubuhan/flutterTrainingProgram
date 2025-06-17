@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controller/todo_controller.dart';
-import '../models/todo_model.dart';
+
 import 'widgets/add_todo.dart';
 import 'widgets/stats_section.dart';
 import 'widgets/todo_list.dart';
