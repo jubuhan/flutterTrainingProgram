@@ -9,17 +9,15 @@ class TodoProvider extends ChangeNotifier {
 
   List<TodoModel> get todos => List.unmodifiable(_todos);
 
-  
   int get totalCount => _todos.length;
   int get completedCount => _todos.where((todo) => todo.isCompleted).length;
   int get pendingCount => totalCount - completedCount;
 
-  
   Future<void> loadTodos() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final todosJson = prefs.getString(_todosKey);
-      
+
       if (todosJson != null) {
         final List<dynamic> decodedTodos = json.decode(todosJson);
         _todos = decodedTodos.map((todo) => TodoModel.fromJson(todo)).toList();
@@ -34,7 +32,8 @@ class TodoProvider extends ChangeNotifier {
   Future<void> _saveTodos() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final todosJson = json.encode(_todos.map((todo) => todo.toJson()).toList());
+      final todosJson =
+          json.encode(_todos.map((todo) => todo.toJson()).toList());
       await prefs.setString(_todosKey, todosJson);
     } catch (e) {
       debugPrint('Error saving todos: $e');
@@ -44,17 +43,17 @@ class TodoProvider extends ChangeNotifier {
   // Add new todo
   Future<void> addTodo(String title) async {
     if (title.trim().isEmpty) return;
-    
+
     final todo = TodoModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title.trim(),
     );
-    
+
     _todos.add(todo);
     notifyListeners();
     await _saveTodos();
   }
-
+  
   // Toggle todo status
   Future<void> toggleTodo(String id) async {
     try {
